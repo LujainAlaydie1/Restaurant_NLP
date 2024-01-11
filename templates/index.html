@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurant Recommendation App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        form {
+            margin: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        button {
+            margin-top: 10px;
+            padding: 10px;
+            cursor: pointer;
+        }
+        #recommendationResult {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    <h1>Restaurant Recommendation App</h1>
+    <form id="recommendationForm">
+        <label for="restaurantName">Enter Restaurant Name:</label>
+        <input type="text" id="restaurantName" name="restaurantName" required>
+        <button type="button" onclick="getRecommendation()">Get Recommendation</button>
+    </form>
+    <div id="recommendationResult"></div>
+
+    <script>
+        function getRecommendation() {
+            const restaurantName = document.getElementById('restaurantName').value;
+            fetch('http://127.0.0.1:5000/get_recommendation', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ input_text: restaurantName }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Response:', data);  // Log the response to inspect it
+    
+                const recommendations = data.recommendation;
+    
+                // Clear previous results
+                document.getElementById('recommendationResult').innerHTML = '';
+    
+                if (recommendations && recommendations.length > 0) {
+                    // Append each recommendation to the result div
+                    recommendations.forEach(recommendation => {
+                        const recommendationDiv = document.createElement('div');
+                        recommendationDiv.innerHTML = `
+                            <p>Name: ${recommendation.name}</p>
+                            <p>Address: ${recommendation.address}</p>
+                            <p>Price: ${recommendation.price}</p>
+                            <p>Rating: ${recommendation.rating}</p>
+                            <p>Cuisine 1: ${recommendation.cuisine1}</p>
+                            <p>Cuisine 2: ${recommendation.cuisine2}</p>
+                            <p>Cuisine 3: ${recommendation.cuisine3}</p>
+                            <hr>
+                        `;
+                        document.getElementById('recommendationResult').appendChild(recommendationDiv);
+                    });
+                } else {
+                    // Display a message if no recommendations are found
+                    document.getElementById('recommendationResult').innerText = 'No recommendations found.';
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    </script>
+    
+    
+</body>
+</html>
